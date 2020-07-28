@@ -11,25 +11,25 @@ from ensemble_model import *
 from utils import *
 
 # # array signal parameters
-fc = 1e9     # carrier frequency
-c = 3e8      # light speed
+fc = 1e9      # carrier frequency
+c = 3e8       # light speed
 M = 10        # array sensor number
 N = 400       # snapshot number
-wavelength = c / fc  # signal wavelength
+wavelength = c / fc   # signal wavelength
 d = 0.5 * wavelength  # inter-sensor distance
 
 # # spatial filter training parameters
-doa_min = -60      # minimal DOA (degree)
-doa_max = 60       # maximal DOA (degree)
-grid_sf = 1         # DOA step (degree) for generating different scenarios
+doa_min = -60        # minimal DOA (degree)
+doa_max = 60         # maximal DOA (degree)
+grid_sf = 1          # DOA step (degree) for generating different scenarios
 GRID_NUM_SF = int((doa_max - doa_min) / grid_sf)
-SF_NUM = 6       # number of spatial filters
+SF_NUM = 6           # number of spatial filters
 SF_SCOPE = (doa_max - doa_min) / SF_NUM   # spatial scope of each filter
 SNR_sf = 10
 NUM_REPEAT_SF = 1    # number of repeated sampling with random noise
 
 noise_flag_sf = 1    # 0: noise-free; 1: noise-present
-amp_or_phase = 0   # show filter amplitude or phase: 0-amplitude; 1-phase
+amp_or_phase = 0     # show filter amplitude or phase: 0-amplitude; 1-phase
 
 # # autoencoder parameters
 input_size_sf = M * (M-1)
@@ -47,12 +47,12 @@ doa_delta = np.array(np.arange(20) + 1) * 0.1 * SF_SCOPE   # inter-signal direct
 SNR_ss = np.array([10, 10, 10]) + 0
 NUM_REPEAT_SS = 10    # number of repeated sampling with random noise
 
-noise_flag_ss = 1    # 0: noise-free; 1: noise-present
+noise_flag_ss = 1     # 0: noise-free; 1: noise-present
 
 # # DNN parameters
 grid_ss = 1    # inter-grid angle in spatial spectrum
 NUM_GRID_SS = int((doa_max - doa_min + 0.5 * grid_ss) / grid_ss)   # spectrum grids
-L = 2    # number of hidden layer
+L = 2          # number of hidden layer
 input_size_ss = M * (M-1)
 hidden_size_ss = [int(2/3* input_size_ss), int(4/9* input_size_ss), int(1/3* input_size_ss)]
 output_size_ss = int(NUM_GRID_SS / SF_NUM)
