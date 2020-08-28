@@ -54,7 +54,7 @@ def synthetic_signal(M):
         r.append([0., positionsY[i] / 1000., 0.])
 
     # ========= 接收信号 ========= #
-    # 波数向量 (以波长的一般为单位)
+    # 波数向量 (以波长的一半为单位)
     X1 = np.cos(np.multiply(az, np.pi / 180.)) * np.cos(np.multiply(el, np.pi / 180.))
     X2 = np.sin(np.multiply(az, np.pi / 180.)) * np.cos(np.multiply(el, np.pi / 180.))
     X3 = np.sin(np.multiply(el, np.pi / 180.))
@@ -112,9 +112,7 @@ def music():
     Rxx = d31 * np.matrix.getH(np.asmatrix(d31)) / N
 
     # 特征分解
-
     D, E = LA.eig(Rxx)
-
     idx = D.argsort()[::-1]
     lmbd = D[idx]           # 排好序的特征值向量
     E = E[:, idx]           # 相应地对特征向量进行排序
@@ -124,8 +122,8 @@ def music():
     AzSearch = np.arange(-90, 90, 0.1)  # 搜索方向的角度
     ElSearch = [0]                      # 仅占位符
 
-    # ========= (4a) 接收信号 ========= #
-    # 波数向量（以波长的一般为单位）
+    # ========= 接收信号 ========= #
+    # 波数向量（以波长的一半为单位）
     X1 = np.cos(np.multiply(AzSearch, np.pi / 180.))
     X2 = np.sin(np.multiply(AzSearch, np.pi / 180.))
     X3 = np.sin(np.multiply(AzSearch, 0.))
@@ -141,7 +139,6 @@ def music():
     # 获取球坐标
     P = np.unravel_index(Z.argmin(), Z.shape)
     # print(AzSearch[P])
-
     return AzSearch, Z
 
 
