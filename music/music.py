@@ -4,33 +4,33 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg as LA
 
-# ========= (1) 参数设置部分 ========= #
-N = 2000  # 扫描的点数
-N_Corrupted = 100  # 删除过程中的第一个点，因为它们已经被破坏
-fs = 4e6  # 采样率
-FuSca = 6.8808e-6  # 归一化系数
-c0 = 3e8  # 光速
-N = N - N_Corrupted  # 移除已经损坏的点
-NrChn = 32  # 天线数目
+# ========= 参数设置部分 ========= #
+N = 2000                # 扫描的点数
+N_Corrupted = 100       # 删除过程中的第一个点，因为它们已经被破坏
+fs = 4e6                # 采样率
+FuSca = 6.8808e-6       # 归一化系数
+c0 = 3e8                # 光速
+N = N - N_Corrupted     # 移除已经损坏的点
+NrChn = 32              # 天线数目
 Win2D = np.tile(np.hanning(N), (NrChn - 1, 1))  # hanning 窗口 https://en.wikipedia.org/wiki/Hann_function
 ScaWin = np.sum(Win2D[1, :])  # 归一化
 
 WinAnt = np.hanning(NrChn - 1)
-NFFT = 2 ** 14  # FFT的长度
+NFFT = 2 ** 14          # FFT的长度
 fStop = 77e9
 fStrt = 76e9
-TRampUp = 512e-6  # 增加持续时间
+TRampUp = 512e-6        # 增加持续时间
 kf = (fStop - fStrt) / TRampUp
 vRange = [i for i in range(NFFT - 1)]
 vRange = np.divide(vRange, NFFT / (fs * c0 / (2 * kf)))  # 距离的范围
 RMin = 1.0
 RMax = 10.0
-RMinIdx, Val = min(enumerate(np.abs(np.subtract(vRange, RMin))), key=operator.itemgetter(1))
+RMinIdx, _ = min(enumerate(np.abs(np.subtract(vRange, RMin))), key=operator.itemgetter(1))
 RMaxIdx, Val = min(enumerate(np.abs(np.subtract(vRange, RMax))), key=operator.itemgetter(1))
-vRangeExt = vRange[RMinIdx:RMaxIdx]  # 只探究这个范围
+vRangeExt = vRange[RMinIdx:RMaxIdx]         # 只探究这个范围
 
 # 接收通道的窗口函数
-NFFTAnt = 1024  # 方位角的FFR长度
+NFFTAnt = 1024          # 方位角的FFR长度
 ScaWinAnt = np.sum(WinAnt)
 WinAnt2D = np.tile(WinAnt, (np.size(vRangeExt), 1))
 vAngDeg = [np.float(i) for i in range(int(-NFFTAnt / 2), int(NFFTAnt / 2))]
@@ -39,11 +39,11 @@ M = 12
 
 
 def synthetic_signal(M):
-    # ======= (1) 模拟输入数据 ======= #
+    # ======= 模拟输入数据 ======= #
     # 信号源方向
-    az = 180 * np.random.random_sample(M) - 90  # 方位
-    example_range = 10 * np.random.random_sample(M)  # 范围
-    el = np.zeros(np.shape(az))  # 海拔
+    az = 180 * np.random.random_sample(M) - 90          # 方位
+    example_range = 10 * np.random.random_sample(M)     # 范围
+    el = np.zeros(np.shape(az))                         # 海拔
     # print('方位值：', az, '范围：', example_range, '海拔：', el)
 
     positionsY = [0.0, 1.948, 3.896, 5.844, 7.792, 9.74, 11.688, 13.636, 15.584, 17.532, 19.48, 21.428, 23.376, 25.324,
@@ -53,7 +53,7 @@ def synthetic_signal(M):
     for i in range(NrChn - 1):
         r.append([0., positionsY[i] / 1000., 0.])
 
-    # ========= (1a) 接收信号 ========= #
+    # ========= 接收信号 ========= #
     # 波数向量 (以波长的一般为单位)
     X1 = np.cos(np.multiply(az, np.pi / 180.)) * np.cos(np.multiply(el, np.pi / 180.))
     X2 = np.sin(np.multiply(az, np.pi / 180.)) * np.cos(np.multiply(el, np.pi / 180.))
@@ -80,7 +80,7 @@ def synthetic_signal(M):
 
 
 def real_signal():
-    # =========  读取计算数据 ========= %
+    # ========= 读取计算数据 ========= %
     datafile = 'music/caldata32_1.csv'
     calData = np.genfromtxt(datafile, delimiter=',')
     CalData = calData[:, 1] + 1j * calData[:, 2]
@@ -97,8 +97,8 @@ def real_signal():
     return np.transpose(DataV31)
 
 
-az, d31 = synthetic_signal(M)  # 合成的标记
-d31 = real_signal()  # real signa
+az, d31 = synthetic_signal(M)   # 合成的标记
+d31 = real_signal()             # real signa
 
 
 def music():
@@ -116,13 +116,13 @@ def music():
     D, E = LA.eig(Rxx)
 
     idx = D.argsort()[::-1]
-    lmbd = D[idx]  # 排好序的特征值向量
-    E = E[:, idx]  # 相应地对特征向量进行排序
-    En = E[:, M:len(E)]  # 假设M是未知情况下的噪声特征向量
+    lmbd = D[idx]           # 排好序的特征值向量
+    E = E[:, idx]           # 相应地对特征向量进行排序
+    En = E[:, M:len(E)]     # 假设M是未知情况下的噪声特征向量
 
     # MUSIC 算法搜索方向
     AzSearch = np.arange(-90, 90, 0.1)  # 搜索方向的角度
-    ElSearch = [0]  # 仅占位符
+    ElSearch = [0]                      # 仅占位符
 
     # ========= (4a) 接收信号 ========= #
     # 波数向量（以波长的一般为单位）
@@ -173,15 +173,15 @@ if __name__ == '__main__':
     plt.xlabel('R (m)')
     plt.ylabel('X (dBV)')
 
-    # Range - Azimuth Polar Plot
+    # 范围-方位角的极坐标图
     fig30 = plt.figure(30, figsize=(9, 9))
 
-    # Positions for polar plot of cost function
+    # cost函数极坐标的位置
     vU = vAngDeg * np.pi / 180.
     mU, mRange = np.meshgrid(vU, vRangeExt)
     ax = fig30.add_subplot(111, projection='polar')
 
-    # normalize cost function
+    # 归一化cost函数
     JdB = 20. * np.log10(abs(JOpt))
     JMax = np.max(JdB)
     JNorm = JdB - JMax
