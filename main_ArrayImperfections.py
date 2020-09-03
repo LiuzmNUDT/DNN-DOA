@@ -10,28 +10,28 @@ import scipy.linalg as la
 from ensemble_model import *
 from utils import *
 
-# # array signal parameters
-fc = 1e9      # carrier frequency
-c = 3e8       # light speed
-M = 10        # array sensor number
-N = 400       # snapshot number
-wavelength = c / fc   # signal wavelength
-d = 0.5 * wavelength  # inter-sensor distance
+# 阵列信号参数
+fc = 1e9                # 载波频率
+c = 3e8                 # 光速
+M = 10                  # 阵列探测器个数
+N = 400                 # snapshot 数量
+wavelength = c / fc     # 信号波长
+d = 0.5 * wavelength    # 探测器间距离
 
-# # spatial filter training parameters
-doa_min = -60        # minimal DOA (degree)
-doa_max = 60         # maximal DOA (degree)
-grid_sf = 1          # DOA step (degree) for generating different scenarios
+# 空间滤波器训练参数
+doa_min = -60                       # 最小 DOA (degree)
+doa_max = 60                        # 最大 DOA (degree)
+grid_sf = 1                         # DOA 步长 (degree) （用于生成不同的场景）
 GRID_NUM_SF = int((doa_max - doa_min) / grid_sf)
-SF_NUM = 6           # number of spatial filters
-SF_SCOPE = (doa_max - doa_min) / SF_NUM   # spatial scope of each filter
+SF_NUM = 6                          # 空间滤波器数量
+SF_SCOPE = (doa_max - doa_min) / SF_NUM   # 滤波器间的空间范围
 SNR_sf = 10
-NUM_REPEAT_SF = 1    # number of repeated sampling with random noise
+NUM_REPEAT_SF = 1                   # 随机噪声重复采样次数
 
-noise_flag_sf = 1    # 0: noise-free; 1: noise-present
-amp_or_phase = 0     # show filter amplitude or phase: 0-amplitude; 1-phase
+noise_flag_sf = 1                   # 0: 无噪声; 1: 有噪声
+amp_or_phase = 0                    # 显示滤波器幅度或相位: 0-amplitude; 1-phase
 
-# # autoencoder parameters
+# 自动编码器参数
 input_size_sf = M * (M-1)
 hidden_size_sf = int(1/2 * input_size_sf)
 output_size_sf = input_size_sf
@@ -39,20 +39,20 @@ batch_size_sf = 32
 num_epoch_sf = 1000
 learning_rate_sf = 0.001
 
-# # training set parameters
-# SS_SCOPE = SF_SCOPE / SF_NUM   # scope of signal directions
-step_ss = 1         # DOA step (degree) for generating different scenarios
-K_ss = 2            # signal number
-doa_delta = np.array(np.arange(20) + 1) * 0.1 * SF_SCOPE   # inter-signal direction differences
+# 训练集参数
+# SS_SCOPE = SF_SCOPE / SF_NUM      # 信号指示范围
+step_ss = 1                         # DOA 步长 (degree) （用于生成不同的场景）
+K_ss = 2                            # 信号数
+doa_delta = np.array(np.arange(20) + 1) * 0.1 * SF_SCOPE   # 信号间方向差异
 SNR_ss = np.array([10, 10, 10]) + 0
-NUM_REPEAT_SS = 10    # number of repeated sampling with random noise
+NUM_REPEAT_SS = 10                  # 随机噪声重复采样次数
 
-noise_flag_ss = 1     # 0: noise-free; 1: noise-present
+noise_flag_ss = 1                   # 0: 无噪声; 1: 有噪声
 
 # # DNN parameters
-grid_ss = 1    # inter-grid angle in spatial spectrum
-NUM_GRID_SS = int((doa_max - doa_min + 0.5 * grid_ss) / grid_ss)   # spectrum grids
-L = 2          # number of hidden layer
+grid_ss = 1    # 空间光谱中的网格间角
+NUM_GRID_SS = int((doa_max - doa_min + 0.5 * grid_ss) / grid_ss)   # 频谱网格
+L = 2          # 隐藏层数
 input_size_ss = M * (M-1)
 hidden_size_ss = [int(2/3* input_size_ss), int(4/9* input_size_ss), int(1/3* input_size_ss)]
 output_size_ss = int(NUM_GRID_SS / SF_NUM)
@@ -60,22 +60,22 @@ batch_size_ss = 32
 learning_rate_ss = 0.001
 num_epoch_ss = 300
 
-# # test data parameters
+# 测试数据参数
 test_DOA = np.array([31.5, 41.5])
 test_K = len(test_DOA)
 test_SNR = np.array([10, 10])
 
-# # retrain the networks or not
+# 是否重新训练网络
 reconstruct_nn_flag = True
 retrain_sf_flag = True
 retrain_ss_flag = True
 
-# # file path of neural network parameters
+# 神经网络参数的文件路径
 model_path_nn = 'initial_model_AI.npy'
 model_path_sf = 'spatialfilter_model_AI.npy'
 model_path_ss = 'spatialspectrum_model_AI.npy'
 
-# # array imperfection parameters
+# 阵列缺陷参数
 mc_flag = True
 ap_flag = False
 pos_flag = False
